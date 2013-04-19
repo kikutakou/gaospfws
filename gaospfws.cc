@@ -44,7 +44,7 @@
 
 
 #ifndef GENMAX
-#   define GENMAX 1000000
+#   define GENMAX 100000
 //#   define GENMAX 1000
 #endif
 #ifdef DEBUG

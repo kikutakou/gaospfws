@@ -3,8 +3,7 @@
 BINARY="gaospfws_$$"
 TIMMSR="ostime_$$"
 
-trap 'rm -f ./$BINARY ./$TIMMSR' INT
-
+trap 'rm -rf ./$BINARY* ./$TIMMSR ; echo stop run.sh $$' INT
 
 while [ -n "$1" ] ; do
 if [ "${1:0:2}" == "-D" ] ; then MACRO=( ${MACRO[@]} $1 ) ; shift
@@ -36,7 +35,7 @@ ruby $(dirname $0)/mkheadder.rb ${ARGS[@]} "$HEADDERFILE" >/dev/null
 g++ -g -lm ${MACRO[@]} -include "$HEADDERFILE" $(dirname $0)/gaospfws.cc -o $(dirname $0)/$BINARY
 [ "$?" == 1 ] && { echo "$0:$LINENO ($(date '+%m/%d %H:%M')): gcc error" 1>&2 ; exit 1 ;}
 
-(time ./$BINARY) > "$OUTPUT" 2>./$TIMMSR && { cat ./$TIMMSR >> "$OUTPUT" ; rm -f ./$BINARY ./$TIMMSR ;}
+(time ./$BINARY) > "$OUTPUT" 2>./$TIMMSR && { cat ./$TIMMSR >> "$OUTPUT" ; rm -f ./$BINARY* ./$TIMMSR ;}
 
 [ -z "$DEBUG" -a -s "$OUTPUT" ] && bash $(dirname $0)/../common/resultshandling/gaospfws_onecolumn.sh $OUTPUT
 
