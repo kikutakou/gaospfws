@@ -69,20 +69,12 @@
 
 //-----------list datatype
 
-typedef unsigned long flag_t;
-typedef unsigned char edge_t;
-typedef unsigned char node_t;
-typedef unsigned dist_t;
-typedef double flow_t;
-typedef signed int gene_t;
-
-const unsigned msb = (sizeof(flag_t)*8-1);
-
+#include "include/typedef.h"
 
 /* on constant memory */
-flow_t* const c = (flow_t*)malloc(sizeof(flow_t)*N*N);        //Capacity
-flow_t* const D = (flow_t*)malloc(sizeof(flow_t)*N*N);        //Demand
-node_t* const e = (node_t*)malloc(sizeof(node_t)*E*2);        //Edgelist
+flow_t* c = (flow_t*)malloc(sizeof(flow_t)*N*N);        //Capacity
+flow_t* D = (flow_t*)malloc(sizeof(flow_t)*N*N);        //Demand
+node_t* e = (node_t*)malloc(sizeof(node_t)*E*2);        //Edgelist
 
 #define RANDOM random
 #define SRANDOM srandom
@@ -91,11 +83,11 @@ node_t* const e = (node_t*)malloc(sizeof(node_t)*E*2);        //Edgelist
 #include "include/timer.h"
 #include "include/bitop.h"
 
+
 Timer tm;
 
 Timer eval, gene;
 
-#include "include/gputools.h"
 #include "include/ecmp.h"
 #include "include/ga.h"
 
