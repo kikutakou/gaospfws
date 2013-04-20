@@ -5,23 +5,22 @@
 
 #include "gaospfws.h"
 
-static cell_t g[P+A];
-static cell_t *gp[P+A];					//pointer array
-static dist_t childbuf[ E * B ];
+static data_t g[ A+P];
+static data_t *gp[ A + P ];					//pointer array
+static dist_t cb[ E * B ];
 
-int th;
-int dec;
+const double th = ( ( 1.0 - M ) * K * RAND_MAX );	//thresholds for cutoff K in mating
+const int mar = (int)( M * RAND_MAX );						//margin for Mutation in mating
 
-void dp_init( cell_t *g );
-void ecmpwarshallfroyd( cell_t *g );
-void c_flow( cell_t *g );
-void buildnexthoplist( cell_t *g, int i, int j );
+void dp_init( data_t *g );
+void ecmpwarshallfroyd( data_t *g );
 inline unsigned int bit_count(flag_t n);
-void alloc_flow(cell_t *g, double flow, unsigned int rate, int i, int j);
+void alloc_flow(data_t *g, double flow, unsigned int rate, int i, int j);
+void buildnexthoplist( data_t *g, int i, int j );
 void mating( dist_t *c, dist_t *el, dist_t *nel );
-void geneEvolution( cell_t **gp, dist_t *c );
+void geneEvolution( data_t **gp, dist_t *c );
 
-void dp_init( cell_t *g ) {
+void dp_init( data_t *g ) {
   int i,j;
   int ij;
   flag_t msb;
@@ -52,7 +51,7 @@ void dp_init( cell_t *g ) {
   return;
 }
 
-void ecmpwarshallfroyd( cell_t *g ) {
+void ecmpwarshallfroyd( data_t *g ) {
   int i,j,k;
   dist_t *d = g->d;
   flag_t *p = g->p;
@@ -77,7 +76,7 @@ void ecmpwarshallfroyd( cell_t *g ) {
   }
 }
 
-void buildnexthoplist( cell_t *g, int i, int j ) {
+void buildnexthoplist( data_t *g, int i, int j ) {
   flag_t *visited = g->visited;
   dist_t *d = g->d;
   flag_t *p = g->p;
@@ -115,7 +114,7 @@ inline unsigned int bit_count(flag_t n) {
   return (unsigned int)n;
 }
 
-void alloc_flow(cell_t *g, double flow, unsigned int rate, int i, int j) {
+void alloc_flow(data_t *g, double flow, unsigned int rate, int i, int j) {
 
   int k = 0;
 	
@@ -134,7 +133,7 @@ void alloc_flow(cell_t *g, double flow, unsigned int rate, int i, int j) {
   }
 }
 
-void c_flow( cell_t *g ) {
+void c_flow( data_t *g ) {
   int i;
   int j;
 
@@ -168,11 +167,11 @@ void mating( dist_t *c, dist_t *el, dist_t *nel ) {
   double ran;
 
   for (i = 0; i < E; i++) {
-    ran = random();
-    ran -= dec;
+    ran = rand();
+    ran -= mar;
     
     if( ran < 0.0 ){
-      c[i] = ( random() % WMAX ) + 1;
+      c[i] = ( rand() % WMAX ) + 1;
     } else if( ran < th ){
       c[i] = el[i];
     } else {
@@ -181,9 +180,9 @@ void mating( dist_t *c, dist_t *el, dist_t *nel ) {
   }
 }
 
-void geneEvolution( cell_t **gp, dist_t *cb ) {
+void geneEvolution( data_t **gp, dist_t *cb ) {
   int i,j;
-  cell_t *gp_tmp, *gp_tmp2;
+  data_t *gp_tmp, *gp_tmp2;
   int idx;
   dist_t *c_p;
   double minL;
@@ -208,8 +207,8 @@ void geneEvolution( cell_t **gp, dist_t *cb ) {
 
 	
   for( i = A; i < A+B; i++ ) {
-    gp_tmp = gp[random() % A ];				//elite
-    gp_tmp2 = gp[A + random() % P ];	//nonelite
+    gp_tmp = gp[rand() % A ];				//elite
+    gp_tmp2 = gp[A + rand() % P ];	//nonelite
     mating( c_p, gp_tmp->w, gp_tmp2->w );
     c_p += E;
   }
@@ -223,11 +222,11 @@ void geneEvolution( cell_t **gp, dist_t *cb ) {
     c_p += E;
   }
 
-  // replace it with random one;
+  // replace it with rand one;
 
   for( i = A+B; i < A+P; i++ ) {
     for( j = 0; j < E; j++ ) {
-      gp[i]->w[j] = ( random() % WMAX ) + 1;
+      gp[i]->w[j] = ( rand() % WMAX ) + 1;
       gp[i]->L = 100.0;
     }
   }
@@ -250,13 +249,11 @@ int main() {
 	static struct timeval st, cu;
 	double tm, tm_best;
 
-  srandom(0);
+  srand(0);
 
 
 	gettimeofday(&st, NULL);
 	
-  th = (int)( ( 1.0 - M ) * K * RAND_MAX );
-  dec = (int)( M * RAND_MAX );
 
 
 	
@@ -266,7 +263,7 @@ int main() {
     g[i].edg_p = edge;
     g[i].L = 100.0;
     for ( j = 0; j < E; j++) { 
-      g[i].w[j] = ( random() % WMAX ) + 1;		//initialize
+      g[i].w[j] = ( rand() % WMAX ) + 1;		//initialize
     }
     gp[i] = &(g[i]); // initialize pointer setting
   }  
@@ -276,7 +273,7 @@ int main() {
     for( j = A; j < A+P; j++) { 
       c_flow( gp[j] );							//calculation flow
     }
-    geneEvolution(gp, childbuf);		//gene evolution
+    geneEvolution(gp, cb);		//gene evolution
 
 		gettimeofday(&cu, NULL);
 		tm = 1e-6*(cu.tv_usec-st.tv_usec)+(cu.tv_sec-st.tv_sec);

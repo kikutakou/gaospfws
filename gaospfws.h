@@ -42,8 +42,8 @@
 typedef unsigned long long flag_t;
 typedef unsigned dist_t;
 
-//#define RANDOM random
-//#define SRANDOM srandom
+//#define RANDOM rand
+//#define SRANDOM srand
 
 typedef struct {
   const int (*cap_p)[N];
@@ -51,11 +51,18 @@ typedef struct {
   const int (*edg_p)[2];
   double L;
   dist_t w[E];
-  
+	
   flag_t visited[N];
   dist_t d[N*N];
   flag_t p[N*N];
   double f[N*N];
+} data_t;
+
+typedef struct {
+	flag_t visited[N];
+	dist_t d[N*N];
+	flag_t p[N*N];
+	double f[N*N];
 } cell_t;
 
 #endif
