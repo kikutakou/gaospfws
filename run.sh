@@ -1,9 +1,8 @@
 #!/bin/bash
 
-BINARY="gaospfws_$$"
-TIMMSR="ostime_$$"
+BINARY="./gaospfws_$$"
 
-trap 'rm -rf ./$BINARY* ./$TIMMSR ; echo stop run.sh $$' INT
+trap 'rm -rf ${BINARY} ${BINARY}.* ; echo stop run.sh ${BINARY} 1>&2' INT
 
 while [ -n "$1" ] ; do
 if [ "${1:0:2}" == "-D" ] ; then MACRO=( ${MACRO[@]} $1 ) ; shift
@@ -20,24 +19,25 @@ echo "${ARGS[@]}" | grep -E "^[0-9 ]*$" >/dev/null || { echo "ERROR  : non numer
 
 #filename
 PBTITLE=$(echo "${ARGS[@]}" | sed "s/ /_/g")
-SENARIO="$(dirname $0)/header/${PBTITLE}.h" ; mkdir -p $(dirname $0)/header
+SENARIO="$(dirname $0)/senario/${PBTITLE}.h" ; mkdir -p $(dirname $0)/senario
 TITLE=${PBTITLE}$(echo "${MACRO[@]}" | sed "s/-D/_/g" | sed "s/ //g")
 OUTPUT="$(dirname $0)/out/ecmp_${TITLE}.txt" ; mkdir -p $(dirname $0)/out
 while [ -e "${OUTPUT%.txt}${PP}.txt" ] ; do PP=_$[${PP:1:5}+1] ; done ; OUTPUT="${OUTPUT%.txt}${PP}.txt"
-[ -n "$DEBUG" ] && OUTPUT="/dev/stdout"
-[ -n "$THREAD" ] && MACRO=( "${MACRO[@]}" "-fopenmp")
+[ -n "$DEBUG" -a -n "$(tty)" ] && OUTPUT="$(tty)"
+[ -n "$THREAD" ] && OPTION=( "${OPTION[@]}" "-fopenmp")
 
 #make headder
 ruby $(dirname $0)/mkheadder.rb ${ARGS[@]} "$SENARIO" >/dev/null
 [ "$?" == 1 ] && { echo "$0:$LINENO ($(date '+%m/%d %H:%M')): ruby error" 1>&2 ; exit 1 ;}
 
 #compile
-g++ -g -lm ${MACRO[@]} -include "$SENARIO" $(ls src/*) $(dirname $0)/gaospfws.cc -o $(dirname $0)/$BINARY
+COMMAND=(gcc -g "${MACRO[@]}" "${OPTION[@]}" -include "$SENARIO" $(dirname $0)/gaospfws.c -o "${BINARY}")
+[ -n "$DEBUG" ] && echo "${COMMAND[@]}" ; "${COMMAND[@]}"
 [ "$?" == 1 ] && { echo "$0:$LINENO ($(date '+%m/%d %H:%M')): gcc error" 1>&2 ; exit 1 ;}
 
-(time ./$BINARY) > "$OUTPUT" 2>./$TIMMSR && { cat ./$TIMMSR >> "$OUTPUT" ; rm -rf ./$BINARY* ./$TIMMSR ;}
+TIMMSR=$((time ./$BINARY > "$OUTPUT") 2>&1) && { echo "$TIMMSR" >> "$OUTPUT" ; rm -rf "${BINARY}" "${BINARY}."* ;}
 
-[ -z "$DEBUG" -a -s "$OUTPUT" ] && bash $(dirname $0)/../common/resultshandling/gaospfws_onecolumn.sh $OUTPUT
+[ -z "$DEBUG" -a -s "$OUTPUT" ] && bash $(dirname $0)/../common/resultshandling/gaospfws_onecolumn.sh "$OUTPUT"
 
 
 
