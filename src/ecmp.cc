@@ -1,7 +1,6 @@
+
 #include "../include/ecmp.h"
 
-#include "../include/bitop.h"
-#include "../include/timer.h"
 
 
 extern flow_t* c;

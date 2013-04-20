@@ -4,6 +4,8 @@
 
 #include <assert.h>
 #include "typedef.h"
+#include "bitop.h"
+#include "timer.h"
 
 
 const dist_t INF = (10000000);

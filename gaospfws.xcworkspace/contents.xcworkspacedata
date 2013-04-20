@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:gaospfws.cc">
+   </FileRef>
+   <Group
+      location = "group:include"
+      name = "include">
+      <FileRef
+         location = "group:bitop.h">
+      </FileRef>
+      <FileRef
+         location = "group:ecmp.h">
+      </FileRef>
+      <FileRef
+         location = "group:ga.h">
+      </FileRef>
+      <FileRef
+         location = "group:print.h">
+      </FileRef>
+      <FileRef
+         location = "group:timer.h">
+      </FileRef>
+      <FileRef
+         location = "group:typedef.h">
+      </FileRef>
+   </Group>
+   <Group
+      location = "group:src"
+      name = "src">
+      <FileRef
+         location = "group:bitop.cc">
+      </FileRef>
+      <FileRef
+         location = "group:ecmp.cc">
+      </FileRef>
+      <FileRef
+         location = "group:timer.cc">
+      </FileRef>
+   </Group>
+</Workspace>
