@@ -51,11 +51,6 @@ typedef struct {
   const int (*edg_p)[2];
   double L;
   dist_t w[E];
-	
-  flag_t visited[N];
-  dist_t d[N*N];
-  flag_t p[N*N];
-  double f[N*N];
 } data_t;
 
 typedef struct {

@@ -5,38 +5,40 @@
 
 #include "gaospfws.h"
 
-static data_t g[ A+P];
+static data_t g[ A + P ];
 static data_t *gp[ A + P ];					//pointer array
+static cell_t ce[ P ];					//pointer array
 static dist_t cb[ E * B ];
 
 const double th = ( ( 1.0 - M ) * K * RAND_MAX );	//thresholds for cutoff K in mating
 const int mar = (int)( M * RAND_MAX );						//margin for Mutation in mating
 
-void dp_init( data_t *g );
-void ecmpwarshallfroyd( data_t *g );
+void dp_init( data_t *g, cell_t *cep );
+void ecmpwarshallfroyd( data_t *g, cell_t *cep );
 inline unsigned int bit_count(flag_t n);
-void alloc_flow(data_t *g, double flow, unsigned int rate, int i, int j);
-void buildnexthoplist( data_t *g, int i, int j );
+void alloc_flow(data_t *g, cell_t *cep, double flow, unsigned int rate, int i, int j);
+void buildnexthoplist( data_t *g, cell_t *cep, int i, int j );
+void c_flow( data_t *g, cell_t *cep );
 void mating( dist_t *c, dist_t *el, dist_t *nel );
 void geneEvolution( data_t **gp, dist_t *c );
 
-void dp_init( data_t *g ) {
+void dp_init( data_t *g, cell_t *cep ) {
   int i,j;
   int ij;
   flag_t msb;
 
   for( i = 0; i < N; i++ ) {
-    g->visited[i] = 0;
+    cep->visited[i] = 0;
     for( j = 0; j < N; j++ ) {
-      g->d[i*N+j] = 0;
-      g->p[i*N+j] = 0;
-      g->f[i*N+j] = 0;
+      cep->d[i*N+j] = 0;
+      cep->p[i*N+j] = 0;
+      cep->f[i*N+j] = 0;
     }
   }
 
   for( i = 0; i < N; i++ ) {
     for( j = 0; j < N; j++ ) {
-      if (i != j){ g->d[i*N+j] = INF; }   //large number if no link
+      if (i != j){ cep->d[i*N+j] = INF; }   //large number if no link
     }
   }
 
@@ -44,17 +46,17 @@ void dp_init( data_t *g ) {
 
   for ( i = 0; i < E; i++){		
     ij = g->edg_p[i][0]*N + g->edg_p[i][1];
-    g->d[ij] = g->w[i];
-    g->p[ij] = msb; //MSB if direct link
+    cep->d[ij] = g->w[i];
+    cep->p[ij] = msb; //MSB if direct link
   }
 
   return;
 }
 
-void ecmpwarshallfroyd( data_t *g ) {
+void ecmpwarshallfroyd( data_t *g, cell_t *cep ) {
   int i,j,k;
-  dist_t *d = g->d;
-  flag_t *p = g->p;
+  dist_t *d = cep->d;
+  flag_t *p = cep->p;
   dist_t c;
 
   for (k = 0; k < N; k++) {		//for each transit node k
@@ -76,10 +78,10 @@ void ecmpwarshallfroyd( data_t *g ) {
   }
 }
 
-void buildnexthoplist( data_t *g, int i, int j ) {
-  flag_t *visited = g->visited;
-  dist_t *d = g->d;
-  flag_t *p = g->p;
+void buildnexthoplist( data_t *g, cell_t *cep, int i, int j ) {
+  flag_t *visited = cep->visited;
+  dist_t *d = cep->d;
+  flag_t *p = cep->p;
   flag_t tmp;
   int k;
 
@@ -90,7 +92,7 @@ void buildnexthoplist( data_t *g, int i, int j ) {
     while( tmp > 0 ){
       while( (tmp & 1) == 0 ) { k++; tmp >>= 1; }		//get next [k]th bit
       tmp &= ~(flag_t)1;							//frag down corresponding bit
-      buildnexthoplist(g, i, k);
+      buildnexthoplist(g, cep, i, k);
       p[i*N+j] &= ~((flag_t)1 << k);	//frag down corresponding bit on p[i][j]
       p[i*N+j] |= p[i*N+k];						//merge the p[i][j] of closer node
     }
@@ -114,11 +116,11 @@ inline unsigned int bit_count(flag_t n) {
   return (unsigned int)n;
 }
 
-void alloc_flow(data_t *g, double flow, unsigned int rate, int i, int j) {
+void alloc_flow(data_t *g, cell_t *cep, double flow, unsigned int rate, int i, int j) {
 
   int k = 0;
 	
-  flag_t tmp = g->p[i*N+j];
+  flag_t tmp = cep->p[i*N+j];
 
   rate *= bit_count(tmp);
   
@@ -126,30 +128,30 @@ void alloc_flow(data_t *g, double flow, unsigned int rate, int i, int j) {
     while((tmp & 1) == 0) { k++; tmp >>= 1; }
     tmp &= ~(flag_t)1;
 
-    g->f[i*N+k] += flow / rate;
+    cep->f[i*N+k] += flow / rate;
     if (k != j) {
-      alloc_flow(g, flow, rate, k, j);
+      alloc_flow(g, cep, flow, rate, k, j);
     }
   }
 }
 
-void c_flow( data_t *g ) {
+void c_flow( data_t *g, cell_t *cep ) {
   int i;
   int j;
 
-  dp_init( g );
-  ecmpwarshallfroyd( g );
+  dp_init( g, cep );
+  ecmpwarshallfroyd( g, cep );
 
   for( i = 0; i < N; i++ ) {
     for( j = 0; j < N; j++ ) {
-      buildnexthoplist( g, i, j );
+      buildnexthoplist( g, cep, i, j );
     }
   }
 
   for ( i = 0; i < N; i++) {
     for ( j = 0; j < N; j++) {
       if( ( i != j ) && g->dem_p[i][j] ) {
-        alloc_flow(g, g->dem_p[i][j], INITIAL_RATE, i, j);
+        alloc_flow(g, cep, g->dem_p[i][j], INITIAL_RATE, i, j);
       }
     }
   }
@@ -157,8 +159,8 @@ void c_flow( data_t *g ) {
   g->L = 0.0;
   for ( i = 0; i < E; i++){
     j = g->edg_p[i][0]*N + g->edg_p[i][1];
-    g->f[j] /= g->cap_p[ g->edg_p[i][0] ][ g->edg_p[i][1] ];
-    if( g->L < g->f[j] ){ g->L = g->f[j]; }
+    cep->f[j] /= g->cap_p[ g->edg_p[i][0] ][ g->edg_p[i][1] ];
+    if( g->L < cep->f[j] ){ g->L = cep->f[j]; }
   }
 }
 
@@ -271,7 +273,7 @@ int main() {
   for( i = 0; i < GENMAX; i++ ) {
 #pragma omp parallel for num_threads(MP)
     for( j = A; j < A+P; j++) { 
-      c_flow( gp[j] );							//calculation flow
+      c_flow( gp[j], &(ce[j-A]) );							//calculation flow
     }
     geneEvolution(gp, cb);		//gene evolution
 
