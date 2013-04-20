@@ -40,11 +40,7 @@
 #define INITIAL_RATE 1
 
 typedef unsigned long long flag_t;
-typedef unsigned char edge_t;
-typedef unsigned char node_t;
 typedef unsigned dist_t;
-typedef double flow_t;
-typedef signed int gene_t;
 
 //#define RANDOM random
 //#define SRANDOM srandom
@@ -59,7 +55,7 @@ typedef struct {
   flag_t visited[N];
   dist_t d[N*N];
   flag_t p[N*N];
-  flow_t f[N*N];
+  double f[N*N];
 } cell_t;
 
 #endif

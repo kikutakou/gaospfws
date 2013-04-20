@@ -17,13 +17,13 @@ void ecmpwarshallfroyd( cell_t *g );
 void c_flow( cell_t *g );
 void buildnexthoplist( cell_t *g, int i, int j );
 inline unsigned int bit_count(flag_t n);
-void alloc_flow(cell_t *g, flow_t flow, unsigned int rate, int i, int j);
+void alloc_flow(cell_t *g, double flow, unsigned int rate, int i, int j);
 void mating( dist_t *c, dist_t *el, dist_t *nel );
 void geneEvolution( cell_t **gp, dist_t *c );
 
 void dp_init( cell_t *g ) {
   int i,j;
-  node_t ij;
+  int ij;
   flag_t msb;
 
   for( i = 0; i < N; i++ ) {
@@ -82,7 +82,7 @@ void buildnexthoplist( cell_t *g, int i, int j ) {
   dist_t *d = g->d;
   flag_t *p = g->p;
   flag_t tmp;
-  node_t k;
+  int k;
 
   if( ( i != j ) && ( ( ( visited[i] >> j ) & 1 ) == 0 ) ) {	//return if visited
     tmp = p[i*N+j] & ~( (flag_t)1 << (sizeof(flag_t)*8-1) );
@@ -115,7 +115,7 @@ inline unsigned int bit_count(flag_t n) {
   return (unsigned int)n;
 }
 
-void alloc_flow(cell_t *g, flow_t flow, unsigned int rate, int i, int j) {
+void alloc_flow(cell_t *g, double flow, unsigned int rate, int i, int j) {
 
   int k = 0;
 	
@@ -277,6 +277,7 @@ int main() {
       c_flow( gp[j] );							//calculation flow
     }
     geneEvolution(gp, childbuf);		//gene evolution
+
 		gettimeofday(&cu, NULL);
 		tm = 1e-6*(cu.tv_usec-st.tv_usec)+(cu.tv_sec-st.tv_sec);
     if(L_best != gp[0]->L){
@@ -291,9 +292,5 @@ int main() {
 	printf("TIME(sec):  \t%.3f\n", tm);
 	printf("GBEST:      \t%d\n", G_best);
 	printf("GENERATION: \t%d\n", i);
-
-	
-	
-
   return 0;
 }
