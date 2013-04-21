@@ -8,7 +8,7 @@
 static data_t g[ A + P ];
 static data_t *gp[ A + P ];					//pointer array
 static cell_t ce[ P ];					//pointer array
-static dist_t cb[ E * B ];
+static weit_t cb[ E * B ];
 
 const double th = ( ( 1.0 - M ) * K * RAND_MAX );	//thresholds for cutoff K in mating
 const int mar = (int)( M * RAND_MAX );						//margin for Mutation in mating
@@ -19,8 +19,8 @@ inline unsigned int bit_count(flag_t n);
 void alloc_flow(data_t *g, cell_t *cep, double flow, unsigned int rate, int i, int j);
 void buildnexthoplist( data_t *g, cell_t *cep, int i, int j );
 void c_flow( data_t *g, cell_t *cep );
-void mating( dist_t *c, dist_t *el, dist_t *nel );
-void geneEvolution( data_t **gp, dist_t *c );
+void mating( weit_t *c, weit_t *el, weit_t *nel );
+void geneEvolution( data_t **gp, weit_t *c );
 
 void dp_init( data_t *g, cell_t *cep ) {
   int i,j;
@@ -164,7 +164,7 @@ void c_flow( data_t *g, cell_t *cep ) {
   }
 }
 
-void mating( dist_t *c, dist_t *el, dist_t *nel ) {
+void mating( weit_t *c, weit_t *el, weit_t *nel ) {
   int i;
   double ran;
 
@@ -182,11 +182,11 @@ void mating( dist_t *c, dist_t *el, dist_t *nel ) {
   }
 }
 
-void geneEvolution( data_t **gp, dist_t *cb ) {
+void geneEvolution( data_t **gp, weit_t *cb ) {
   int i,j;
   data_t *gp_tmp, *gp_tmp2;
   int idx;
-  dist_t *c_p;
+  weit_t *c_p;
   double minL;
 
   for( i = 0; i < A+P; i++ ) {		//sort
@@ -206,7 +206,6 @@ void geneEvolution( data_t **gp, dist_t *cb ) {
   // mating => ( nonelite + elite )
 
   c_p = cb;
-
 	
   for( i = A; i < A+B; i++ ) {
     gp_tmp = gp[rand() % A ];				//elite
@@ -234,7 +233,30 @@ void geneEvolution( data_t **gp, dist_t *cb ) {
   }
 }
 
-int main() {
+void dummy(data_t **gp, weit_t *c){
+	int i, j;
+	int a[P];
+	int min, idx, tmp;
+	for( i = 0; i < P; i++ ) {
+		a[i] = rand();
+	}
+	for( i = 0; i < P; i++ ) {		//sort
+    min = a[i]; idx = i;
+    for( j = i + 1; j < P; j++ ) {
+      if( min > a[j] ) {
+        min = a[j];
+        idx = j;
+      }
+    }
+    tmp = a[i];
+    a[i] = a[idx];
+    a[idx] = tmp;
+  }
+	for( i = A; i < A+P; i++ ) { gp[i]->L = 100.0; }
+}
+
+
+int main(){
 	printf("NODE:\t%u\tPATH:\t%u\tSEED:\t%u\tGENMAX:\t%u\n", N, H, S, GENMAX);
 	printf("A:\t%3d\tB:\t%3d\tC:\t%3d\tMUT:\t%.3f\tCUT:\t%.3f\n", A, B, C, M, K);
 #ifdef _OPENMP
@@ -242,9 +264,7 @@ int main() {
 #endif
 	printf("\nsec/gen \tL\n");
 
-	
   int i,j;
-
   double L_best = 0.0;
   double sec_best = 0.0;
   int G_best = 0;
@@ -253,11 +273,7 @@ int main() {
 
   srand(0);
 
-
 	gettimeofday(&st, NULL);
-	
-
-
 	
   for( i = 0 ; i < P+A; i++ ) {
     g[i].cap_p = capacity;
@@ -276,7 +292,6 @@ int main() {
       c_flow( gp[j], &(ce[j-A]) );							//calculation flow
     }
     geneEvolution(gp, cb);		//gene evolution
-
 		gettimeofday(&cu, NULL);
 		tm = 1e-6*(cu.tv_usec-st.tv_usec)+(cu.tv_sec-st.tv_sec);
     if(L_best != gp[0]->L){

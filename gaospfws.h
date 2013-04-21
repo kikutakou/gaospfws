@@ -40,6 +40,7 @@
 #define INITIAL_RATE 1
 
 typedef unsigned long long flag_t;
+typedef unsigned short weit_t;
 typedef unsigned dist_t;
 
 //#define RANDOM rand
@@ -50,7 +51,7 @@ typedef struct {
   const int (*dem_p)[N];
   const int (*edg_p)[2];
   double L;
-  dist_t w[E];
+  weit_t w[E];
 } data_t;
 
 typedef struct {
