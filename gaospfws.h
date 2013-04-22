@@ -43,8 +43,8 @@ typedef unsigned long long flag_t;
 typedef unsigned short weit_t;
 typedef unsigned dist_t;
 
-//#define RANDOM rand
-//#define SRANDOM srand
+//#define RANDOM random
+//#define SRANDOM srandom
 
 typedef struct {
   const int (*cap_p)[N];

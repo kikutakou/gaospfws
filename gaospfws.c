@@ -170,11 +170,11 @@ void mating( weit_t *c, const weit_t *el, const weit_t *nel ) {
   double ran;
 
   for (i = 0; i < E; i++) {
-    ran = rand();
+    ran = random();
     ran -= mar;
     
     if( ran < 0.0 ){
-      c[i] = ( rand() % WMAX ) + 1;
+      c[i] = ( random() % WMAX ) + 1;
     } else if( ran < th ){
       c[i] = el[i];
     } else {
@@ -216,8 +216,8 @@ void geneEvolution( data_t **gp, weit_t *cb ) {
   c_p = cb;
 	
   for( i = A; i < A+B; i++ ) {
-    gp_tmp = gp[rand() % A ];				//elite
-    gp_tmp2 = gp[A + rand() % P ];	//nonelite
+    gp_tmp = gp[random() % A ];				//elite
+    gp_tmp2 = gp[A + random() % P ];	//nonelite
     mating( c_p, gp_tmp->w, gp_tmp2->w );
     c_p += E;
   }
@@ -231,11 +231,11 @@ void geneEvolution( data_t **gp, weit_t *cb ) {
     c_p += E;
   }
 
-  // replace it with rand one;
+  // replace it with random one;
 
   for( i = A+B; i < A+P; i++ ) {
     for( j = 0; j < E; j++ ) {
-      gp[i]->w[j] = ( rand() % WMAX ) + 1;
+      gp[i]->w[j] = ( random() % WMAX ) + 1;
       gp[i]->L = 100.0;
     }
   }
@@ -246,7 +246,7 @@ void dummy(data_t **gp, weit_t *c){
 	int a[P];
 	int min, idx, tmp;
 	for( i = 0; i < P; i++ ) {
-		a[i] = rand();
+		a[i] = random();
 	}
 	for( i = 0; i < P; i++ ) {		//sort
     min = a[i]; idx = i;
@@ -279,7 +279,7 @@ int main(){
 	static struct timeval st, cu;
 	double tm, tm_best;
 
-  srand(0);
+  srandom(0);
 
 	gettimeofday(&st, NULL);
 	
@@ -289,7 +289,7 @@ int main(){
     g[i].edg_p = edge;
     g[i].L = 100.0;
     for ( j = 0; j < E; j++) { 
-      g[i].w[j] = ( rand() % WMAX ) + 1;		//initialize
+      g[i].w[j] = ( random() % WMAX ) + 1;		//initialize
     }
     gp[i] = &(g[i]); // initialize pointer setting
   }  
