@@ -19,7 +19,7 @@ inline unsigned int bit_count(flag_t n);
 void alloc_flow(data_t *g, cell_t *cep, double flow, unsigned int rate, int i, int j);
 void buildnexthoplist( data_t *g, cell_t *cep, int i, int j );
 void c_flow( data_t *g, cell_t *cep );
-void mating( weit_t *c, weit_t *el, weit_t *nel );
+void mating( weit_t *c, const weit_t *el, const weit_t *nel );
 void geneEvolution( data_t **gp, weit_t *c );
 
 void dp_init( data_t *g, cell_t *cep ) {
@@ -164,7 +164,7 @@ void c_flow( data_t *g, cell_t *cep ) {
   }
 }
 
-void mating( weit_t *c, weit_t *el, weit_t *nel ) {
+void mating( weit_t *c, const weit_t *el, const weit_t *nel ) {
   int i;
   double ran;
 
@@ -219,7 +219,7 @@ void geneEvolution( data_t **gp, weit_t *cb ) {
   for( i = A; i < A+B; i++ ) {	// update it back
     for( j = 0; j < E; j++ ) {
       gp[i]->w[j] = c_p[j];			//copy
-    }
+    }	
     c_p += E;
   }
 
