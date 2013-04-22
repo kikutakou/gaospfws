@@ -6,9 +6,9 @@
 #include "gaospfws.h"
 
 static data_t g[ A + P ];
-static data_t *gp[ A + P ];					//pointer array
-static cell_t ce[ P ];					//pointer array
-static weit_t cb[ E * B ];
+static data_t *gp[ A + P ];					//pointer array for sorting
+static cell_t ce[ P ];							//cell array
+static weit_t cb[ E * B ];					//data array for mating
 
 const double th = ( ( 1.0 - M ) * K * RAND_MAX );	//thresholds for cutoff K in mating
 const int mar = (int)( M * RAND_MAX );						//margin for Mutation in mating
@@ -20,6 +20,7 @@ void alloc_flow(data_t *g, cell_t *cep, double flow, unsigned int rate, int i, i
 void buildnexthoplist( data_t *g, cell_t *cep, int i, int j );
 void c_flow( data_t *g, cell_t *cep );
 void mating( weit_t *c, const weit_t *el, const weit_t *nel );
+void geneSorting( data_t **gp );
 void geneEvolution( data_t **gp, weit_t *c );
 
 void dp_init( data_t *g, cell_t *cep ) {
@@ -181,15 +182,13 @@ void mating( weit_t *c, const weit_t *el, const weit_t *nel ) {
     }
   }
 }
-
-void geneEvolution( data_t **gp, weit_t *cb ) {
+void geneSorting( data_t **gp ){
   int i,j;
-  data_t *gp_tmp, *gp_tmp2;
+	double minL;
   int idx;
-  weit_t *c_p;
-  double minL;
-
-  for( i = 0; i < A+P; i++ ) {		//sort
+  data_t *gp_tmp;
+	
+	for( i = 0; i < A+P; i++ ) {		//sort
     minL = gp[i]->L; idx = i;
     for( j = i + 1; j < A+P; j++ ) {
       if( minL > gp[j]->L ) {
@@ -201,6 +200,15 @@ void geneEvolution( data_t **gp, weit_t *cb ) {
     gp[i] = gp[idx];
     gp[idx] = gp_tmp;
   }
+	
+	return;
+	
+}
+
+void geneEvolution( data_t **gp, weit_t *cb ) {
+  int i,j;
+  data_t *gp_tmp, *gp_tmp2;
+  weit_t *c_p;
 
   // elite => keep the same
   // mating => ( nonelite + elite )
@@ -291,6 +299,7 @@ int main(){
     for( j = A; j < A+P; j++) { 
       c_flow( gp[j], &(ce[j-A]) );							//calculation flow
     }
+    geneSorting(gp);			//gene sort
     geneEvolution(gp, cb);		//gene evolution
 		gettimeofday(&cu, NULL);
 		tm = 1e-6*(cu.tv_usec-st.tv_usec)+(cu.tv_sec-st.tv_sec);
