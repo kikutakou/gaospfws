@@ -2,7 +2,7 @@
 
 BINARY="./gaospfws_$$"
 
-trap 'rm -rf ${BINARY} ${BINARY}.* ; echo stop run.sh ${BINARY} 1>&2' INT
+trap 'rm -rf ${BINARY} ${BINARY}.* ; echo stop run.sh ${BINARY} 1>&2' INT TERM
 
 while [ -n "$1" ] ; do
 if [ "${1:0:2}" == "-D" ] ; then MACRO=( ${MACRO[@]} $1 ) ; shift
