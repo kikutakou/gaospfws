@@ -50,8 +50,9 @@ typedef struct {
   const int (*cap_p)[N];
   const int (*dem_p)[N];
   const int (*edg_p)[2];
-  double L;
-  weit_t w[E];
+  double L;			//objective value
+  weit_t w[E];	//weight
+	int r;		//ranking
 } data_t;
 
 typedef struct {

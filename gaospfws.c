@@ -165,7 +165,7 @@ void c_flow( data_t *g, cell_t *cep ) {
   }
 }
 
-void mating( weit_t *c, const weit_t *el, const weit_t *nel ) {
+inline void mating( weit_t *c, const weit_t *el, const weit_t *nel ) {
   int i;
   double ran;
 
@@ -182,6 +182,7 @@ void mating( weit_t *c, const weit_t *el, const weit_t *nel ) {
     }
   }
 }
+
 void geneSorting( data_t **gp ){
   int i,j;
 	double minL;
@@ -200,40 +201,31 @@ void geneSorting( data_t **gp ){
     gp[i] = gp[idx];
     gp[idx] = gp_tmp;
   }
-	
+	for( i = 0; i < A+P; i++ ) {
+		gp[i]->r=i;
+	}
 	return;
-	
 }
 
 void geneEvolution( data_t **gp, weit_t *cb ) {
   int i,j;
-  data_t *gp_tmp, *gp_tmp2;
+  data_t *elite, *nonelite;
   weit_t *c_p;
 
-  // elite => keep the same
-  // mating => ( nonelite + elite )
 
-  c_p = cb;
-	
-  for( i = A; i < A+B; i++ ) {
-    gp_tmp = gp[random() % A ];				//elite
-    gp_tmp2 = gp[A + random() % P ];	//nonelite
-    mating( c_p, gp_tmp->w, gp_tmp2->w );
-    c_p += E;
+  for( i = A; i < A+B; i++ ) {				//elite => keep the same	,
+    elite = gp[random() % A ];				//elite
+    nonelite = gp[A + random() % P ];	//nonelite
+    mating( &cb[ (i-A) * E ], elite->w, nonelite->w );	//mating => ( nonelite + elite )
   }
 
-  c_p = cb;
-
-  for( i = A; i < A+B; i++ ) {	// update it back
+  for( i = A; i < A+B; i++ ) {	//update it back
     for( j = 0; j < E; j++ ) {
-      gp[i]->w[j] = c_p[j];			//copy
+      gp[i]->w[j] = cb[ (i-A) * E + j ];			//copy
     }	
-    c_p += E;
   }
 
-  // replace it with random one;
-
-  for( i = A+B; i < A+P; i++ ) {
+  for( i = A+B; i < A+P; i++ ) {	  //replace it with random one;
     for( j = 0; j < E; j++ ) {
       gp[i]->w[j] = ( random() % WMAX ) + 1;
       gp[i]->L = 100.0;
