@@ -16,9 +16,6 @@
 #endif
 
 #define P (B+C)
-#define POP (A+B+C)
-#define ALPHA ((double)A/POP)
-#define BETA ((double)A/POP)
 
 #ifndef M
 #define M 0.001
@@ -47,12 +44,9 @@ typedef unsigned dist_t;
 //#define SRANDOM srandom
 
 typedef struct {
-  const int (*cap_p)[N];
-  const int (*dem_p)[N];
-  const int (*edg_p)[2];
   double L;			//objective value
   weit_t w[E];	//weight
-	int r;		//ranking
+	int r;				//ranking
 } data_t;
 
 typedef struct {
@@ -60,6 +54,6 @@ typedef struct {
 	dist_t d[N*N];
 	flag_t p[N*N];
 	double f[N*N];
-} cell_t;
+} locl_t;
 
 #endif
