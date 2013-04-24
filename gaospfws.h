@@ -54,6 +54,6 @@ typedef struct {
 	dist_t d[N*N];
 	flag_t p[N*N];
 	double f[N*N];
-} locl_t;
+} cell_t;
 
 #endif

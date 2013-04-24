@@ -12,22 +12,22 @@ const int (*edg_p)[2];		//edge
 static data_t g[ A + P ];
 static data_t *gp[ A + P ];					//pointer array for sorting
 static weit_t cb[ E * B ];					//data array for mating
-static locl_t lo;
+static cell_t cell;
 
 const double th = ( ( 1.0 - M ) * K * RAND_MAX );	//thresholds for cutoff K in mating
 const int mar = (int)( M * RAND_MAX );						//margin for Mutation in mating
 
-void dp_init( data_t *g, locl_t *lp );
-void ecmpwarshallfroyd( data_t *g, locl_t *lp );
+void dp_init( data_t *g, cell_t *lp );
+void ecmpwarshallfroyd( data_t *g, cell_t *lp );
 inline unsigned int bit_count(flag_t n);
-void alloc_flow(data_t *g, locl_t *lp, double flow, unsigned int rate, int i, int j);
-void buildnexthoplist( data_t *g, locl_t *lp, int i, int j );
-void c_flow( data_t *g, locl_t *lp );
+void alloc_flow(data_t *g, cell_t *lp, double flow, unsigned int rate, int i, int j);
+void buildnexthoplist( data_t *g, cell_t *lp, int i, int j );
+void c_flow( data_t *g, cell_t *lp );
 void mating( weit_t *c, const weit_t *el, const weit_t *nel );
 void geneSorting( data_t **gp );
 void geneEvolution( data_t **gp, weit_t *c );
 
-void dp_init( data_t *g, locl_t *lp ) {
+void dp_init( data_t *g, cell_t *lp ) {
   int i,j;
   int ij;
   flag_t msb;
@@ -58,7 +58,7 @@ void dp_init( data_t *g, locl_t *lp ) {
   return;
 }
 
-void ecmpwarshallfroyd( data_t *g, locl_t *lp ) {
+void ecmpwarshallfroyd( data_t *g, cell_t *lp ) {
   int i,j,k;
   dist_t *d = lp->d;
   flag_t *p = lp->p;
@@ -83,7 +83,7 @@ void ecmpwarshallfroyd( data_t *g, locl_t *lp ) {
   }
 }
 
-void buildnexthoplist( data_t *g, locl_t *lp, int i, int j ) {
+void buildnexthoplist( data_t *g, cell_t *lp, int i, int j ) {
   flag_t *visited = lp->visited;
   dist_t *d = lp->d;
   flag_t *p = lp->p;
@@ -121,7 +121,7 @@ inline unsigned int bit_count(flag_t n) {
   return (unsigned int)n;
 }
 
-void alloc_flow(data_t *g, locl_t *lp, double flow, unsigned int rate, int i, int j) {
+void alloc_flow(data_t *g, cell_t *lp, double flow, unsigned int rate, int i, int j) {
 	
   int k = 0;
 	
@@ -140,7 +140,7 @@ void alloc_flow(data_t *g, locl_t *lp, double flow, unsigned int rate, int i, in
   }
 }
 
-void c_flow( data_t *g, locl_t *lp ) {
+void c_flow( data_t *g, cell_t *lp ) {
   int i;
   int j;
 	
@@ -291,9 +291,9 @@ int main(){
 	
 #pragma omp parallel num_threads(MP) private(i)
   for( i = 0; i < GENMAX; i++ ){
-#pragma omp for private(lo)
+#pragma omp for private(cell)
     for( j = A; j < A+P; j++) {
-      c_flow( gp[j], &(lo) );							//calculation flow
+      c_flow( gp[j], &(cell) );							//calculation flow
     }
 #pragma omp single
 		{
