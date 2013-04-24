@@ -40,13 +40,9 @@ typedef unsigned long long flag_t;
 typedef unsigned short weit_t;
 typedef unsigned dist_t;
 
-//#define RANDOM random
-//#define SRANDOM srandom
-
 typedef struct {
   double L;			//objective value
-  weit_t w[E];	//weight
-	int r;				//ranking
+//	int r;				//ranking
 } data_t;
 
 typedef struct {
