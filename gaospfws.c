@@ -269,8 +269,8 @@ int main(){
   int i,j;
   double L_best = 0.0;
   double sec_best = 0.0;
-  int G_best = 0;
-	static struct timeval st, cu;
+  int G_best = GENMAX;
+	static struct timeval st, nw;
 	double tm, tm_best;
 	
   srandom(0);
@@ -299,8 +299,8 @@ int main(){
 		{
 			geneSorting(gp);			//gene sort
 			geneEvolution(gp, cb);		//gene evolution
-			gettimeofday(&cu, NULL);
-			tm = 1e-6*(cu.tv_usec-st.tv_usec)+(cu.tv_sec-st.tv_sec);
+			gettimeofday(&nw, NULL);
+			tm = 1e-6*(nw.tv_usec-st.tv_usec)+(nw.tv_sec-st.tv_sec);
 			if(L_best != gp[0]->L){
 				L_best = gp[0]->L;  G_best = i;	tm_best=tm;
 				printf("%7u\t%10f\n", (i+1), gp[0]->L);
