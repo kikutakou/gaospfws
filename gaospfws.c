@@ -8,7 +8,7 @@
 const int (*cap_p)[N];		//capacity
 const int (*dem_p)[N];		//demand
 const int (*edg_p)[2];		//edge
-
+ 
 static data_t g[ A + P ];
 static data_t *gp[ A + P ];					//pointer array for sorting
 static weit_t cb[ E * B ];					//data array for mating
